@@ -24,7 +24,7 @@ sh install_fedlearner.sh
 ```
 + my server does not have mysql installed. To accomodate to this, need to remove remove mysqlclient and sqlalchemy in fedlearner/requirement.txt, and remove import MySQLClient (L21) in fedlearner/fedlearner/common/db_client.py
 
-##5. test
+## 5. test
 ```
 python test/test_all_config.py
 ```
