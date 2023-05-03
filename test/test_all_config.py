@@ -243,7 +243,7 @@ def convert_metric(config):
 
 if __name__ == "__main__":
     nw = time.time()
-    target_case = "test/configs/case_2.json"
+    target_case = "test/configs/case_0.json"
     # print(json.dumps(simulate_with_config(target_case), indent=2))
     results = simulate_with_config(target_case)
     for r in results[1].values():
