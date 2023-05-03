@@ -1,0 +1,29 @@
+{
+  "framework": "fedlearner",
+  "algorithm": "fedavg",
+  "dataset": "breast_vertical",
+  "model": "mlp_128",
+  "deployment": {
+    "mode": "colink",
+    "participants": [
+      [
+        "0236f00d8e378b20634c901acfe004f0f85f5cdd7fa6377dab79e093bc62eabf9c",
+        "leader"
+      ],
+      [
+        "0261bff483acdeb79ff332f003249cb8e303896487509c670ab3fc84c00acb16fd",
+        "follower"
+      ]
+    ]
+  },
+  "training": {
+    "epochs": 30,
+    "batch_size": 32,
+    "learning_rate": 0.01,
+    "client_per_round": 2,
+    "optimizer": "sgd",
+    "optimizer_param": {
+      "momentum": 0.9
+    }
+  }
+}

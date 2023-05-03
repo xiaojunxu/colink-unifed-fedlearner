@@ -1,0 +1,27 @@
+{
+  "framework": "fedlearner",
+  "algorithm": "hetero",
+  "dataset": "default_credit_vertical",
+  "model": "gbdt",
+  "deployment": {
+    "mode": "colink",
+    "participants": [
+      [
+        "0236f00d8e378b20634c901acfe004f0f85f5cdd7fa6377dab79e093bc62eabf9c",
+        "leader"
+      ],
+      [
+        "0261bff483acdeb79ff332f003249cb8e303896487509c670ab3fc84c00acb16fd",
+        "follower"
+      ]
+    ]
+  },
+  "training": {
+    "epochs": 2,
+    "learning_rate": 0.05,
+    "tree_param": {
+      "max_bins": 64,
+      "max_depth": 6
+    }
+  }
+}
