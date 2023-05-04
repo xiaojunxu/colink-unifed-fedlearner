@@ -70,6 +70,7 @@ def simulate_with_config(config_file_path):
     ###return case_name, results
     from unifed.frameworks.fedlearner.protocol import pop, UNIFED_TASK_DIR
     if test_type == 'horizontal' or test_type == 'leaf':
+        print ("HORIZONTAL")
         # use CL to run evaluate_horizontal --- change the test_train threads
         cl = CL.InstantServer().get_colink().switch_to_generated_user()
         pop.run_attach(cl)
@@ -171,8 +172,7 @@ def simulate_with_config(config_file_path):
     elif test_type == 'tree':
         # use CL to run leader & follower
         # make training data
-        print ("SKIPPING MAKE_DATA")
-        #os.system('python make_data.py config.json train')
+        os.system('python make_data.py config.json train')
 
         # run leader/follower training
         ir = CL.InstantRegistry()

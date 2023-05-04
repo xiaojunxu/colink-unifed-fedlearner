@@ -193,6 +193,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_horizontal(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
+    print ("in horizontal")
     unifed_config = load_config_from_param_and_check(param)
     ## for certain frameworks, clients need to learn the ip of the server
     ## in that case, we get the ip of the current machine and send it to the clients
