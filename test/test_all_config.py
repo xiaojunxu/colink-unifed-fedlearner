@@ -71,11 +71,40 @@ def simulate_with_config(config_file_path):
     from unifed.frameworks.fedlearner.protocol import pop, UNIFED_TASK_DIR
     if test_type == 'horizontal' or test_type == 'leaf':
         print ("HORIZONTAL")
-        # use CL to run evaluate_horizontal --- change the test_train threads
-        cl = CL.InstantServer().get_colink().switch_to_generated_user()
-        pop.run_attach(cl)
-        participants = [CL.Participant(user_id=cl.get_user_id(), role='horizontal')]
-        task_id = cl.run_task("unifed.fedlearner", json.dumps(config), participants, True)
+        ## use CL to run evaluate_horizontal --- change the test_train threads
+        #cl = CL.InstantServer().get_colink().switch_to_generated_user()
+        #pop.run_attach(cl)
+        #participants = [CL.Participant(user_id=cl.get_user_id(), role='horizontal')]
+        #task_id = cl.run_task("unifed.fedlearner", json.dumps(config), participants, True)
+        #results = {}
+        #def G(key):
+        #    r = cl.read_entry(f"{UNIFED_TASK_DIR}:{task_id}:{key}")
+        #    if r is not None:
+        #        if key == "log":
+        #            return [json.loads(l) for l in r.decode().split("\n") if l != ""]
+        #        return r.decode() if key != "return" else json.loads(r)
+        #cl.wait_task(task_id)
+        #results[cl.get_user_id()] = {
+        #    "output": G("output"),
+        #    "log": G("log"),
+        #    "return": G("return"),
+        #    "error": G("error"),
+        #}
+
+        ir = CL.InstantRegistry()
+        config_participants = config["deployment"]["participants"]
+        cls = []
+        participants = []
+        follower_id=0
+        for _, role in config_participants:
+            print (role)
+            assert role == 'leader' or role == 'follower', "Unrecognized role: %s"%role
+            cl = CL.InstantServer().get_colink().switch_to_generated_user()
+            pop.run_attach(cl)
+            participants.append(CL.Participant(user_id=cl.get_user_id(), role='horizontal'+role))
+            cls.append(cl)
+            print (cl, participants[-1])
+        task_id = cls[0].run_task("unifed.fedlearner", json.dumps(config), participants, True)
         results = {}
         def G(key):
             r = cl.read_entry(f"{UNIFED_TASK_DIR}:{task_id}:{key}")
@@ -83,13 +112,14 @@ def simulate_with_config(config_file_path):
                 if key == "log":
                     return [json.loads(l) for l in r.decode().split("\n") if l != ""]
                 return r.decode() if key != "return" else json.loads(r)
-        cl.wait_task(task_id)
-        results[cl.get_user_id()] = {
-            "output": G("output"),
-            "log": G("log"),
-            "return": G("return"),
-            "error": G("error"),
-        }
+        for cl in cls:
+            cl.wait_task(task_id)
+            results[cl.get_user_id()] = {
+                "output": G("output"),
+                "log": G("log"),
+                "return": G("return"),
+                "error": G("error"),
+            }
 
         os.system('python process_log.py config.json')
     elif test_type == 'vertical':

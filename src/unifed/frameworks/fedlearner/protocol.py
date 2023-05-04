@@ -28,14 +28,43 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         # you can also expect the target process to generate files and then read them
 
         # start training procedure
-        if role == 'horizontal':
+        #if role == 'horizontal':
+        #    new_env = os.environ.copy()
+        #    new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
+        #    process = subprocess.Popen(
+        #        [
+        #            "python",  
+        #            "evaluate_horizontal.py",
+        #            "config.json"
+        #        ],
+        #        env=new_env,
+        #        stdout=subprocess.PIPE, 
+        #        stderr=subprocess.PIPE
+        #    )
+        if role == 'horizontalleader':
+            print ('h-leader', participant_id)
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
             process = subprocess.Popen(
                 [
                     "python",  
-                    "evaluate_horizontal.py",
-                    "config.json"
+                    "leader_horizontal.py",
+                    "config.json",
+                ],
+                env=new_env,
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE
+            )
+        elif role == 'horizontalfollower':
+            print ('h-follow', participant_id)
+            new_env = os.environ.copy()
+            new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
+            process = subprocess.Popen(
+                [
+                    "python",  
+                    "follower_horizontal.py",
+                    "config.json",
+                    str(participant_id-1)
                 ],
                 env=new_env,
                 stdout=subprocess.PIPE, 
@@ -284,3 +313,30 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
     return run_external_process_and_collect_result(cl, participant_id, "treefollower", unifed_config['training']['epochs'], tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])#, server_ip)
 
+
+@pop.handle("unifed.fedlearner:horizontalleader")
+@store_error(UNIFED_TASK_DIR)
+@store_return(UNIFED_TASK_DIR)
+def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
+    unifed_config = load_config_from_param_and_check(param)
+    ## for certain frameworks, clients need to learn the ip of the server
+    ## in that case, we get the ip of the current machine and send it to the clients
+    #server_ip = get_local_ip()
+    #cl.send_variable("leader_ip", server_ip, [p for p in participants if p.role == "follower"])
+    # run external program
+    participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
+    return run_external_process_and_collect_result(cl, participant_id, "horizontalleader", unifed_config['training']['epochs'])#, leader_ip)
+
+@pop.handle("unifed.fedlearner:horizontalfollower")
+@store_error(UNIFED_TASK_DIR)
+@store_return(UNIFED_TASK_DIR)
+def run_horizontalfollower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
+    unifed_config = load_config_from_param_and_check(param)
+    ## get the ip of the server
+    #server_in_list = [p for p in participants if p.role == "server"]
+    #assert len(server_in_list) == 1
+    #p_server = server_in_list[0]
+    #server_ip = cl.recv_variable("server_ip", p_server).decode()
+    # run external program
+    participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
+    return run_external_process_and_collect_result(cl, participant_id, "horizontalfollower", unifed_config['training']['epochs'])#, server_ip)
