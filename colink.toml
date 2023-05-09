@@ -1,0 +1,28 @@
+[package]
+name = "unifed-fedlearner"
+version = "0.0.0"
+keywords = ["federated learning", "machine learning"]
+description = "Integrating Fedlearner framework into UniFed as a CoLink protocol."
+language = "python"
+install_script = """
+if { conda env list | grep 'colink-protocol-unifed-fedlearner'; } >/dev/null 2>&1; then
+    conda env remove -n colink-protocol-unifed-fedlearner
+fi
+conda create -n colink-protocol-unifed-fedlearner python=3.7
+conda activate colink-protocol-unifed-fedlearner
+pip install -e .
+git clone https://github.com/bytedance/fedlearner.git
+cd fedlearner
+git checkout 86a9f3e7a39a39767bb3913461de4b120f80cacd
+pip install --upgrade pip
+pip install -r requirements.txt
+pip install flbenchmark
+pip install scikit-learn
+pip install protobuf==3.20.* pytest
+cp ../fedlearner.patch ./fedlearner.patch
+git apply --whitespace=fix fedlearner.patch
+make protobuf && make op
+cd ..
+entrypoint = """
+conda activate colink-protocol-unifed-fedlearner
+unifed-fedlearner > debug.txt 2>&1
