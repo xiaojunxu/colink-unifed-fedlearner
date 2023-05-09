@@ -291,17 +291,17 @@ def create_model(num_class, input_len, type):
 _fl_cluster = {
     "leader": {
         "name": "leader",
-        "address": "0.0.0.0:20050"
+        "address": f"{sys.argv[2]}:20050"
     },
     "followers": []
 }
 for i in range(client_num-1):
     _fl_cluster["followers"].append({
     "name": "follower_"+str(i),
-    "address": "0.0.0.0:"+str(20051+i)
+    "address": f"{sys.argv[2]}:"+str(20051+i)
 })
 model = create_model(num_class, input_len, type)
-i = int(sys.argv[2])
+i = int(sys.argv[3])
 
 if config['dataset'] == 'reddit':
     train_from_keras_model(model,

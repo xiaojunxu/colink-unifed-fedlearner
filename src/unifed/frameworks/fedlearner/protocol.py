@@ -21,7 +21,7 @@ def load_config_from_param_and_check(param: bytes):
         raise ValueError("Deployment mode must be colink")
     return unifed_config
 
-def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role: str, n_epoch: int, tree_lr:float=0.0, tree_bins:int=0, tree_depth:int=0):#, server_ip: str):
+def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role: str, n_epoch: int, server_ip: str, tree_lr:float=0.0, tree_bins:int=0, tree_depth:int=0):
     with GetTempFileName() as temp_log_filename, \
         GetTempFileName() as temp_output_filename:
         # note that here, you don't have to create temp files to receive output and log
@@ -50,6 +50,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "python",  
                     "leader_horizontal.py",
                     "config.json",
+                    server_ip,
                 ],
                 env=new_env,
                 stdout=subprocess.PIPE, 
@@ -64,6 +65,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "python",  
                     "follower_horizontal.py",
                     "config.json",
+                    server_ip,
                     str(participant_id-1)
                 ],
                 env=new_env,
@@ -77,8 +79,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 [
                     "python",  
                     "leader.py",
-                    "--local-addr=localhost:50051",
-                    "--peer-addr=localhost:50052",
+                    f"--local-addr={server_ip}:50051",
+                    f"--peer-addr={server_ip}:50052",
                     "--data-path=data/leader",
                     "--checkpoint-path=log/checkpoint/leader",
                     "--save-checkpoint-steps=10",
@@ -97,8 +99,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 [
                     "python",  
                     "follower.py",
-                    "--local-addr=localhost:50052",
-                    "--peer-addr=localhost:50051",
+                    f"--local-addr={server_ip}:50052",
+                    f"--peer-addr={server_ip}:50051",
                     "--data-path=data/follower",
                     "--checkpoint-path=log/checkpoint/follower",
                     "--save-checkpoint-steps=10",
@@ -117,8 +119,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 [
                     "python",  
                     "leader.py",
-                    "--local-addr=localhost:50051",
-                    "--peer-addr=localhost:50052",
+                    f"--local-addr={server_ip}:50051",
+                    f"--peer-addr={server_ip}:50052",
                     "--data-path=data/leader",
                     "--load-checkpoint-path=log/checkpoint/leader",
                     "--mode=eval"
@@ -134,8 +136,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 [
                     "python",  
                     "follower.py",
-                    "--local-addr=localhost:50052",
-                    "--peer-addr=localhost:50051",
+                    f"--local-addr={server_ip}:50052",
+                    f"--peer-addr={server_ip}:50051",
                     "--data-path=data/follower",
                     "--load-checkpoint-path=log/checkpoint/follower",
                     "--mode=eval"
@@ -155,8 +157,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "fedlearner.model.tree.trainer",
                     "leader",
                     "--verbosity=1",
-                    "--local-addr=localhost:50051",
-                    "--peer-addr=localhost:50052",
+                    f"--local-addr={server_ip}:50051",
+                    f"--peer-addr={server_ip}:50052",
                     "--file-type=tfrecord",
                     "--data-path=data/leader/leader_train.tfrecord",
                     "--validation-data-path=data/leader/leader_test.tfrecord",
@@ -183,8 +185,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "fedlearner.model.tree.trainer",
                     "follower",
                     "--verbosity=1",
-                    "--local-addr=localhost:50052",
-                    "--peer-addr=localhost:50051",
+                    f"--local-addr={server_ip}:50052",
+                    f"--peer-addr={server_ip}:50051",
                     "--file-type=tfrecord",
                     "--data-path=data/follower/follower_train.tfrecord",
                     "--validation-data-path=data/follower/follower_test.tfrecord",
@@ -218,100 +220,100 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
             "returncode": returncode,
         })
 
-@pop.handle("unifed.fedlearner:horizontal")
-@store_error(UNIFED_TASK_DIR)
-@store_return(UNIFED_TASK_DIR)
-def run_horizontal(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
-    print ("in horizontal")
-    unifed_config = load_config_from_param_and_check(param)
-    ## for certain frameworks, clients need to learn the ip of the server
-    ## in that case, we get the ip of the current machine and send it to the clients
-    #server_ip = get_local_ip()
-    #cl.send_variable("leader_ip", server_ip, [p for p in participants if p.role == "follower"])
-    # run external program
-    participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "horizontal", unifed_config['training']['epochs'])#, leader_ip)
+#@pop.handle("unifed.fedlearner:horizontal")
+#@store_error(UNIFED_TASK_DIR)
+#@store_return(UNIFED_TASK_DIR)
+#def run_horizontal(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
+#    print ("in horizontal")
+#    unifed_config = load_config_from_param_and_check(param)
+#    ## for certain frameworks, clients need to learn the ip of the server
+#    ## in that case, we get the ip of the current machine and send it to the clients
+#    #server_ip = get_local_ip()
+#    #cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "follower"])
+#    # run external program
+#    participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
+#    return run_external_process_and_collect_result(cl, participant_id, "horizontal", unifed_config['training']['epochs'])#, server_ip)
 
 @pop.handle("unifed.fedlearner:leader")
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_leader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## for certain frameworks, clients need to learn the ip of the server
-    ## in that case, we get the ip of the current machine and send it to the clients
-    #server_ip = get_local_ip()
-    #cl.send_variable("leader_ip", server_ip, [p for p in participants if p.role == "follower"])
+    # for certain frameworks, clients need to learn the ip of the server
+    # in that case, we get the ip of the current machine and send it to the clients
+    server_ip = get_local_ip()
+    cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "follower"])
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "leader", unifed_config['training']['epochs'])#, leader_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "leader", unifed_config['training']['epochs'], server_ip)
 
 @pop.handle("unifed.fedlearner:follower")
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_follower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## get the ip of the server
-    #server_in_list = [p for p in participants if p.role == "server"]
-    #assert len(server_in_list) == 1
-    #p_server = server_in_list[0]
-    #server_ip = cl.recv_variable("server_ip", p_server).decode()
+    # get the ip of the server
+    server_in_list = [p for p in participants if p.role == "server"]
+    assert len(server_in_list) == 1
+    p_server = server_in_list[0]
+    server_ip = cl.recv_variable("server_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "follower", unifed_config['training']['epochs'])#, server_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "follower", unifed_config['training']['epochs'], server_ip)
 
 @pop.handle("unifed.fedlearner:leadereval")
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_leadereval(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## for certain frameworks, clients need to learn the ip of the server
-    ## in that case, we get the ip of the current machine and send it to the clients
-    #server_ip = get_local_ip()
-    #cl.send_variable("leader_ip", server_ip, [p for p in participants if p.role == "follower"])
+    # for certain frameworks, clients need to learn the ip of the server
+    # in that case, we get the ip of the current machine and send it to the clients
+    server_ip = get_local_ip()
+    cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "follower"])
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "leadereval", unifed_config['training']['epochs'])#, leader_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "leadereval", unifed_config['training']['epochs'], server_ip)
 
 @pop.handle("unifed.fedlearner:followereval")
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_followereval(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## get the ip of the server
-    #server_in_list = [p for p in participants if p.role == "server"]
-    #assert len(server_in_list) == 1
-    #p_server = server_in_list[0]
-    #server_ip = cl.recv_variable("server_ip", p_server).decode()
+    # get the ip of the server
+    server_in_list = [p for p in participants if p.role == "server"]
+    assert len(server_in_list) == 1
+    p_server = server_in_list[0]
+    server_ip = cl.recv_variable("server_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "followereval", unifed_config['training']['epochs'])#, server_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "followereval", unifed_config['training']['epochs'], server_ip)
 
 @pop.handle("unifed.fedlearner:treeleader")
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## for certain frameworks, clients need to learn the ip of the server
-    ## in that case, we get the ip of the current machine and send it to the clients
-    #server_ip = get_local_ip()
-    #cl.send_variable("leader_ip", server_ip, [p for p in participants if p.role == "follower"])
+    # for certain frameworks, clients need to learn the ip of the server
+    # in that case, we get the ip of the current machine and send it to the clients
+    server_ip = get_local_ip()
+    cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "follower"])
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "treeleader", unifed_config['training']['epochs'], tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])#, leader_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "treeleader", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
 
 @pop.handle("unifed.fedlearner:treefollower")
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## get the ip of the server
-    #server_in_list = [p for p in participants if p.role == "server"]
-    #assert len(server_in_list) == 1
-    #p_server = server_in_list[0]
-    #server_ip = cl.recv_variable("server_ip", p_server).decode()
+    # get the ip of the server
+    server_in_list = [p for p in participants if p.role == "server"]
+    assert len(server_in_list) == 1
+    p_server = server_in_list[0]
+    server_ip = cl.recv_variable("server_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "treefollower", unifed_config['training']['epochs'], tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])#, server_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "treefollower", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
 
 
 @pop.handle("unifed.fedlearner:horizontalleader")
@@ -319,24 +321,24 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## for certain frameworks, clients need to learn the ip of the server
-    ## in that case, we get the ip of the current machine and send it to the clients
-    #server_ip = get_local_ip()
-    #cl.send_variable("leader_ip", server_ip, [p for p in participants if p.role == "follower"])
+    # for certain frameworks, clients need to learn the ip of the server
+    # in that case, we get the ip of the current machine and send it to the clients
+    server_ip = get_local_ip()
+    cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "follower"])
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "horizontalleader", unifed_config['training']['epochs'])#, leader_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "horizontalleader", unifed_config['training']['epochs'], server_ip)
 
 @pop.handle("unifed.fedlearner:horizontalfollower")
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalfollower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    ## get the ip of the server
-    #server_in_list = [p for p in participants if p.role == "server"]
-    #assert len(server_in_list) == 1
-    #p_server = server_in_list[0]
-    #server_ip = cl.recv_variable("server_ip", p_server).decode()
+    # get the ip of the server
+    server_in_list = [p for p in participants if p.role == "server"]
+    assert len(server_in_list) == 1
+    p_server = server_in_list[0]
+    server_ip = cl.recv_variable("server_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "horizontalfollower", unifed_config['training']['epochs'])#, server_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "horizontalfollower", unifed_config['training']['epochs'], server_ip)
