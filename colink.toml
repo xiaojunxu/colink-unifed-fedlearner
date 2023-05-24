@@ -8,10 +8,12 @@ install_script = """
 if { conda env list | grep 'colink-protocol-unifed-fedlearner'; } >/dev/null 2>&1; then
     conda env remove -n colink-protocol-unifed-fedlearner
 fi
-conda create -n colink-protocol-unifed-fedlearner python=3.9 -y
+conda create -n colink-protocol-unifed-fedlearner python=3.7 -y
 conda activate colink-protocol-unifed-fedlearner
 git clone https://github.com/bytedance/fedlearner.git
 cd fedlearner
+pip install --upgrade pip
+cp ../fedlearner.patch ./fedlearner.patch
 cd ..
 """
 entrypoint = """
