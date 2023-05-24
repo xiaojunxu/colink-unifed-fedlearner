@@ -1,19 +1,19 @@
 [package]
-name = "unifed-fedlearner"
+name = "unifed-flower"
 version = "0.0.0"
 keywords = ["federated learning", "machine learning"]
-description = "Integrating Fedlearner framework into UniFed as a CoLink protocol."
+description = "Integrating Flower framework into UniFed as a CoLink protocol."
 language = "python"
 install_script = """
-if { conda env list | grep 'colink-protocol-unifed-fedlearner'; } >/dev/null 2>&1; then
-    conda env remove -n colink-protocol-unifed-fedlearner
+if { conda env list | grep 'colink-protocol-unifed-flower'; } >/dev/null 2>&1; then
+    conda env remove -n colink-protocol-unifed-flower
 fi
-conda create -n colink-protocol-unifed-fedlearner python=3.9 -y
-conda activate colink-protocol-unifed-fedlearner
-git clone https://github.com/bytedance/fedlearner.git
-cd fedlearner
+conda create -n colink-protocol-unifed-flower python=3.9 -y
+conda activate colink-protocol-unifed-flower
+git clone https://github.com/adap/flower.git
+cd flower
 cd ..
 """
 entrypoint = """
-conda activate colink-protocol-unifed-fedlearner
+conda activate colink-protocol-unifed-flower
 """
