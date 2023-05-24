@@ -1,5 +1,5 @@
 [package]
-name = "unifed-fedlearner"
+name = "unifed-flower"
 version = "0.0.0"
 keywords = ["federated learning", "machine learning"]
 description = "Integrating Fedlearner framework into UniFed as a CoLink protocol."
