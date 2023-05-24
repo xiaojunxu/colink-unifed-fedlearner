@@ -20,6 +20,7 @@ pip install scikit-learn
 pip install protobuf==3.20.* pytest
 cp ../fedlearner.patch ./fedlearner.patch
 git apply --whitespace=fix fedlearner.patch
+make protobuf && make op
 cd ..
 """
 entrypoint = """
