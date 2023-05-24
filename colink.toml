@@ -10,8 +10,8 @@ if { conda env list | grep 'colink-protocol-unifed-fedlearner'; } >/dev/null 2>&
 fi
 conda create -n colink-protocol-unifed-fedlearner python=3.9 -y
 conda activate colink-protocol-unifed-fedlearner
-git clone https://github.com/bytedance/fedlearner.git
-cd fedlearner
+git clone https://github.com/adap/flower.git
+cd flower
 cd ..
 """
 entrypoint = """
