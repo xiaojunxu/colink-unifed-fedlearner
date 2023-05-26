@@ -1,5 +1,5 @@
 [package]
-name = "unifed-flower"
+name = "unifed-fedlearner"
 version = "0.0.0"
 keywords = ["federated learning", "machine learning"]
 description = "Integrating Fedlearner framework into UniFed as a CoLink protocol."
@@ -26,5 +26,5 @@ cd ..
 """
 entrypoint = """
 conda activate colink-protocol-unifed-fedlearner
-unifed-flower > debug.txt 2>&1
+unifed-fedlearner > debug.txt 2>&1
 """
