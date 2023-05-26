@@ -320,6 +320,7 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
+    raise RuntimeError("TEST-leader")
     unifed_config = load_config_from_param_and_check(param)
     print (unifed_config['training']['epochs'])
     # for certain frameworks, clients need to learn the ip of the server
@@ -334,6 +335,7 @@ def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Part
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalfollower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
+    raise RuntimeError("TEST-follower")
     unifed_config = load_config_from_param_and_check(param)
     print (unifed_config['training']['epochs'])
     # get the ip of the server
