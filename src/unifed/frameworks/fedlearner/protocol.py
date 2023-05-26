@@ -42,7 +42,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         #        stderr=subprocess.PIPE
         #    )
         if role == 'horizontalleader':
-            print ('h-leader', participant_id)
+            #print ('h-leader', participant_id)
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
             process = subprocess.Popen(
@@ -57,7 +57,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 stderr=subprocess.PIPE
             )
         elif role == 'horizontalfollower':
-            print ('h-follow', participant_id)
+            #print ('h-follow', participant_id)
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
             process = subprocess.Popen(
@@ -320,9 +320,7 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
-    raise RuntimeError("TEST-leader")
     unifed_config = load_config_from_param_and_check(param)
-    print (unifed_config['training']['epochs'])
     # for certain frameworks, clients need to learn the ip of the server
     # in that case, we get the ip of the current machine and send it to the clients
     server_ip = get_local_ip()
@@ -335,9 +333,7 @@ def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Part
 @store_error(UNIFED_TASK_DIR)
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalfollower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
-    raise RuntimeError("TEST-follower")
     unifed_config = load_config_from_param_and_check(param)
-    print (unifed_config['training']['epochs'])
     # get the ip of the server
     server_in_list = [p for p in participants if p.role == "horizontalleader"]
     assert len(server_in_list) == 1
