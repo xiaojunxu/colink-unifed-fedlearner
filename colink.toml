@@ -26,5 +26,5 @@ cd ..
 """
 entrypoint = """
 conda activate colink-protocol-unifed-fedlearner
-unifed-fedlearner > debug.txt 2>&1
+unifed-flower > debug.txt 2>&1
 """
