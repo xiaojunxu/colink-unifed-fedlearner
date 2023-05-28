@@ -21,6 +21,7 @@ pip install -r requirements.txt
 pip install flbenchmark
 pip install scikit-learn
 pip install protobuf==3.20.* pytest
+pip install -U pip setuptools
 make protobuf && make op
 cd ..
 """
