@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 import sys
 import subprocess
 import tempfile
