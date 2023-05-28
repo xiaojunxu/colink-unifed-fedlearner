@@ -207,12 +207,14 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         # gather result
         stdout, stderr = process.communicate()
         returncode = process.returncode
-        with open(temp_output_filename, "rb") as f:
-            output = f.read()
-        cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:output", output)
-        with open(temp_log_filename, "rb") as f:
-            log = f.read()
-        cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:log", log)
+        #with open(temp_output_filename, "rb") as f:
+        #    output = f.read()
+        #cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:output", output)
+        #with open(temp_log_filename, "rb") as f:
+        #    log = f.read()
+        #cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:log", log)
+        cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:output", stdout.decode())
+        cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:log", stderr.decode())
         return json.dumps({
             #"server_ip": server_ip,
             "stdout": stdout.decode(),
