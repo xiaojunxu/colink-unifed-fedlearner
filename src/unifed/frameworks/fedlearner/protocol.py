@@ -323,6 +323,12 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
+    fedlearner_config = copy.deepcopy(unifed_config)
+    fedlearner_config["training_param"] = fedlearner_config["training"]
+    fedlearner_config.pop("training")
+    fedlearner_config["bench_param"] = fedlearner_config["deployment"]
+    with open("config.json", "w") as cf:
+        json.dump(fedlearner_config, cf)
     # for certain frameworks, clients need to learn the ip of the server
     # in that case, we get the ip of the current machine and send it to the clients
     server_ip = get_local_ip()
@@ -336,6 +342,12 @@ def run_horizontalleader(cl: CL.CoLink, param: bytes, participants: List[CL.Part
 @store_return(UNIFED_TASK_DIR)
 def run_horizontalfollower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
+    fedlearner_config = copy.deepcopy(unifed_config)
+    fedlearner_config["training_param"] = fedlearner_config["training"]
+    fedlearner_config.pop("training")
+    fedlearner_config["bench_param"] = fedlearner_config["deployment"]
+    with open("config.json", "w") as cf:
+        json.dump(fedlearner_config, cf)
     # get the ip of the server
     server_in_list = [p for p in participants if p.role == "horizontalleader"]
     assert len(server_in_list) == 1
