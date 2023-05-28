@@ -1,3 +1,16 @@
+diff --git a/fedlearner/common/db_client.py b/fedlearner/common/db_client.py
+index 6a21f19a..cb438307 100644
+--- a/fedlearner/common/db_client.py
++++ b/fedlearner/common/db_client.py
+@@ -18,7 +18,7 @@
+ import os
+ from fedlearner.common.etcd_client import EtcdClient
+ from fedlearner.common.dfs_client import DFSClient
+-from fedlearner.common.mysql_client import MySQLClient
++#from fedlearner.common.mysql_client import MySQLClient
+ from fedlearner.common.leveldb import LevelDB
+ 
+ 
 diff --git a/fedlearner/fedavg/fedavg.py b/fedlearner/fedavg/fedavg.py
 index a66a5dab..745a45b6 100644
 --- a/fedlearner/fedavg/fedavg.py
@@ -162,7 +175,7 @@ index 48d44cf3..dabf03db 100644
              raise RuntimeError(
                  "push weights error, code: {}, message: {}".format(
 diff --git a/fedlearner/model/tree/tree.py b/fedlearner/model/tree/tree.py
-index 20cd3263..77598633 100644
+index 20cd3263..d4779384 100644
 --- a/fedlearner/model/tree/tree.py
 +++ b/fedlearner/model/tree/tree.py
 @@ -33,7 +33,7 @@ from fedlearner.model.crypto import paillier, fixed_point_number
@@ -174,15 +187,15 @@ index 20cd3263..77598633 100644
  
  BST_TYPE = np.float32
  PRECISION = 1e38
-@@ -1097,6 +1097,8 @@ class BoostingTreeEnsamble(object):
-         self._enable_packing = enable_packing
+@@ -1098,6 +1098,8 @@ class BoostingTreeEnsamble(object):
          if self._role == 'leader' and self._enable_packing:
              self._packer = GradHessPacker(self._public_key, PRECISION, EXPONENT)
-+        
-+        self.logger = flbenchmark.logging.Logger(id = 0 if self._role == 'leader' else 1, agent_type='client')
  
++        self.logger = flbenchmark.logging.Logger(id = 0 if self._role == 'leader' else 1, agent_type='client')
++
      @property
      def loss(self):
+         return self._loss
 @@ -1572,11 +1574,14 @@ class BoostingTreeEnsamble(object):
              sum_prediction = np.zeros(num_examples, dtype=BST_TYPE)
  
@@ -366,3 +379,18 @@ index b7e5c2ac..865345eb 100644
              # Print result
              fl_logging.info('Metrics for evaluate: %s',
                  _dict_to_str(final_ops_hook.final_ops_values))
+diff --git a/requirements.txt b/requirements.txt
+index 5fce3a05..491404d8 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -22,8 +22,8 @@ elasticsearch6
+ guppy3
+ tensorflow-io==0.8.1
+ psutil
+-sqlalchemy==1.2.19
+-mysqlclient
++#sqlalchemy==1.2.19
++#mysqlclient
+ leveldb
+ prison==0.1.3
+ matplotlib
