@@ -104,7 +104,8 @@ def write_tfrecord_data(filename, data, header, dtypes):
         fout.write(example.SerializeToString())
 
 def write_data(output_type, filename, X, y, role):
-    if role == 'leader':
+    #if role == 'leader':
+    if 'leader' in role:
         data = np.concatenate((X, y), axis=1)
         N = data.shape[1] - 1
         header = ['f%05d'%i for i in range(N)] + ['label']

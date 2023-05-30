@@ -255,7 +255,10 @@ def run_leader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "follower"])
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "leader", unifed_config['training']['epochs'], server_ip)
+    #return run_external_process_and_collect_result(cl, participant_id, "leader", unifed_config['training']['epochs'], server_ip)
+    train_json = run_external_process_and_collect_result(cl, participant_id, "leader", unifed_config['training']['epochs'], server_ip)
+    os.system('python make_data.py config.json test')
+    return run_external_process_and_collect_result(cl, participant_id, "leadereval", unifed_config['training']['epochs'], server_ip) # TODO: merge train/test json
 
 @pop.handle("unifed.fedlearner:follower")
 @store_error(UNIFED_TASK_DIR)
@@ -276,7 +279,10 @@ def run_follower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]
     server_ip = cl.recv_variable("server_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    return run_external_process_and_collect_result(cl, participant_id, "follower", unifed_config['training']['epochs'], server_ip)
+    #return run_external_process_and_collect_result(cl, participant_id, "follower", unifed_config['training']['epochs'], server_ip)
+    train_json = run_external_process_and_collect_result(cl, participant_id, "follower", unifed_config['training']['epochs'], server_ip)
+    os.system('python make_data.py config.json test')
+    return run_external_process_and_collect_result(cl, participant_id, "followereval", unifed_config['training']['epochs'], server_ip) # TODO: merge train/test json
 
 @pop.handle("unifed.fedlearner:leadereval")
 @store_error(UNIFED_TASK_DIR)
@@ -310,10 +316,18 @@ def run_followereval(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
 @store_return(UNIFED_TASK_DIR)
 def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
+    fedlearner_config = copy.deepcopy(unifed_config)
+    fedlearner_config["training_param"] = fedlearner_config["training"]
+    fedlearner_config.pop("training")
+    fedlearner_config["bench_param"] = fedlearner_config["deployment"]
+    with open("config.json", "w") as cf:
+        json.dump(fedlearner_config, cf)
+    print (fedlearner_config)
+    os.system('python make_data.py config.json train')
     # for certain frameworks, clients need to learn the ip of the server
     # in that case, we get the ip of the current machine and send it to the clients
     server_ip = get_local_ip()
-    cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "follower"])
+    cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "treefollower"])
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
     return run_external_process_and_collect_result(cl, participant_id, "treeleader", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
@@ -323,8 +337,16 @@ def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participan
 @store_return(UNIFED_TASK_DIR)
 def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
+    fedlearner_config = copy.deepcopy(unifed_config)
+    fedlearner_config["training_param"] = fedlearner_config["training"]
+    fedlearner_config.pop("training")
+    fedlearner_config["bench_param"] = fedlearner_config["deployment"]
+    with open("config.json", "w") as cf:
+        json.dump(fedlearner_config, cf)
+    print (fedlearner_config)
+    os.system('python make_data.py config.json train')
     # get the ip of the server
-    server_in_list = [p for p in participants if p.role == "server"]
+    server_in_list = [p for p in participants if p.role == "treeleader"]
     assert len(server_in_list) == 1
     p_server = server_in_list[0]
     server_ip = cl.recv_variable("server_ip", p_server).decode()
