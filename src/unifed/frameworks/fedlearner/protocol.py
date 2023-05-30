@@ -242,7 +242,13 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
 @store_return(UNIFED_TASK_DIR)
 def run_leader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    print (unifed_config)
+    fedlearner_config = copy.deepcopy(unifed_config)
+    fedlearner_config["training_param"] = fedlearner_config["training"]
+    fedlearner_config.pop("training")
+    fedlearner_config["bench_param"] = fedlearner_config["deployment"]
+    with open("config.json", "w") as cf:
+        json.dump(fedlearner_config, cf)
+    os.system('python make_data.py config.json train')
     # for certain frameworks, clients need to learn the ip of the server
     # in that case, we get the ip of the current machine and send it to the clients
     server_ip = get_local_ip()
@@ -256,7 +262,13 @@ def run_leader(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
 @store_return(UNIFED_TASK_DIR)
 def run_follower(cl: CL.CoLink, param: bytes, participants: List[CL.Participant]):
     unifed_config = load_config_from_param_and_check(param)
-    print (unifed_config)
+    fedlearner_config = copy.deepcopy(unifed_config)
+    fedlearner_config["training_param"] = fedlearner_config["training"]
+    fedlearner_config.pop("training")
+    fedlearner_config["bench_param"] = fedlearner_config["deployment"]
+    with open("config.json", "w") as cf:
+        json.dump(fedlearner_config, cf)
+    os.system('python make_data.py config.json train')
     # get the ip of the server
     server_in_list = [p for p in participants if p.role == "leader"]
     assert len(server_in_list) == 1
