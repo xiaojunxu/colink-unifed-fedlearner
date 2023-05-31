@@ -217,9 +217,12 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         with open("tmp.log","w") as outf:
             outf.write("gathering")
         stdout, stderr = process.communicate()
+        with open("tmp.log","a") as outf:
+            outf.write("gather done")
         returncode = process.returncode
         with open("tmp.log","a") as outf:
             outf.write("=================\n=================\n=================\n")
+        with open("tmp.log","a") as outf:
             outf.write(str(stdout))
         with open("tmp.log","a") as outf:
             outf.write("=================\n=================\n=================\n")
