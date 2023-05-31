@@ -150,8 +150,6 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         elif role == 'treeleader':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
-            with open("leader.log","a") as outf:
-                outf.write("starting process\n")
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
@@ -325,19 +323,11 @@ def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participan
     with open("config.json", "w") as cf:
         json.dump(fedlearner_config, cf)
     print (fedlearner_config)
-    with open("leader.log","w") as outf:
-        outf.write("going to make data\n")
     os.system('python make_data.py config.json train')
-    with open("leader.log","a") as outf:
-        outf.write("make data done\n")
     # for certain frameworks, clients need to learn the ip of the server
     # in that case, we get the ip of the current machine and send it to the clients
     server_ip = get_local_ip()
-    with open("leader.log","a") as outf:
-        outf.write("local ip: %s\n"%server_ip)
     cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "treefollower"])
-    with open("leader.log","a") as outf:
-        outf.write("ip sent: %s\n"%server_ip)
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
     return run_external_process_and_collect_result(cl, participant_id, "treeleader", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
