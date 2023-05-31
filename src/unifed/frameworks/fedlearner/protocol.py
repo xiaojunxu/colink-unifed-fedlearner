@@ -182,6 +182,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         elif role == 'treefollower':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
+            with open("follower.log","a") as outf:
+                outf.write("in process\n")
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
@@ -207,21 +209,25 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 stdout=subprocess.PIPE, 
                 stderr=subprocess.PIPE
             )
+            with open("follower.log","a") as outf:
+                outf.write("out process\n")
         else:
             raise NotImplementedError()
         # gather result
+        with open("tmp.log","w") as outf:
+            outf.write("gathering")
         stdout, stderr = process.communicate()
         returncode = process.returncode
-        with open("leader.log","a") as outf:
+        with open("tmp.log","a") as outf:
             outf.write("=================\n=================\n=================\n")
-            outf.write(stdout)
-        with open("leader.log","a") as outf:
+            outf.write(str(stdout))
+        with open("tmp.log","a") as outf:
             outf.write("=================\n=================\n=================\n")
             outf.write(stdout.decode())
-        with open("leader.log","a") as outf:
+        with open("tmp.log","a") as outf:
             outf.write("=================\n=================\n=================\n")
-            outf.write(stderr)
-        with open("leader.log","a") as outf:
+            outf.write(str(stderr))
+        with open("tmp.log","a") as outf:
             outf.write("=================\n=================\n=================\n")
             outf.write(stderr.decode())
         #with open(temp_output_filename, "rb") as f:
@@ -364,6 +370,8 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     with open("config.json", "w") as cf:
         json.dump(fedlearner_config, cf)
     print (fedlearner_config)
+    with open("follower.log","w") as outf:
+        outf.write("going to make data\n")
     os.system('python make_data.py config.json train')
     # get the ip of the server
     server_in_list = [p for p in participants if p.role == "treeleader"]
@@ -372,6 +380,9 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     server_ip = cl.recv_variable("server_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
+    with open("leader.log","a") as outf:
+        outf.write("server ip: %s\n"%server_ip)
+        outf.write("participant id: %s\n"%participant_id)
     return run_external_process_and_collect_result(cl, participant_id, "treefollower", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
 
 
