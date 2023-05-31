@@ -15,12 +15,8 @@ import fedlearner.common.fl_logging as logging
 from fedlearner.fedavg import train_from_keras_model
 
 tf.enable_eager_execution()
-with open("leader.log","w") as outf:
-    outf.write("start\n")
 
 config = json.load(open(sys.argv[1], 'r'))
-with open("leader.log","a") as outf:
-    outf.write("config:%s\n"%config)
 
 flbd = flbenchmark.datasets.FLBDatasets('../data')
 
@@ -159,8 +155,6 @@ elif config['dataset'] == 'vehicle_scale_horizontal':
     type = 'classification'
 else:
     raise NotImplementedError('Dataset {} is not supported.'.format(config['dataset']))
-with open("leader.log","a") as outf:
-    outf.write("Data done\n")
 
 class ReflectionPadding2D(tf.keras.layers.Layer):
     def __init__(self, padding=(1, 1), **kwargs):
@@ -297,23 +291,19 @@ def create_model(num_class, input_len, type):
 _fl_cluster = {
     "leader": {
         "name": "leader",
-        "address": f"{sys.argv[2]}:40050"
+        "address": f"{sys.argv[2]}:20050"
     },
     "followers": []
 }
 for i in range(client_num-1):
     _fl_cluster["followers"].append({
     "name": "follower_"+str(i),
-    "address": f"{sys.argv[2]}:"+str(40051+i)
+    "address": f"{sys.argv[2]}:"+str(20051+i)
 })
 model = create_model(num_class, input_len, type)
-with open("leader.log","a") as outf:
-    outf.write("model created\n")
 
 print ("training")
 if config['dataset'] == 'reddit':
-    with open("leader.log","a") as outf:
-        outf.write("xxxxxx\n")
     train_from_keras_model(model,
                           all_test_seq[:,:-1],
                           all_test_seq[:,1:],
@@ -324,11 +314,7 @@ if config['dataset'] == 'reddit':
                           fl_name="leader",
                           fl_cluster=_fl_cluster,
                           steps_per_sync=config['training_param']['steps_per_sync'])
-    with open("leader.log","a") as outf:
-        outf.write("xxxxxx\n")
 else:
-    with open("leader.log","a") as outf:
-        outf.write("xxxxxx\n")
     train_from_keras_model(model,
                           x_test,
                           y_test,
@@ -339,5 +325,3 @@ else:
                           fl_name="leader",
                           fl_cluster=_fl_cluster,
                           steps_per_sync=config['training_param']['steps_per_sync'])
-    with open("leader.log","a") as outf:
-        outf.write("xxxxxx\n")

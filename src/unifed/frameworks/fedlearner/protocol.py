@@ -150,6 +150,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         elif role == 'treeleader':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
+            with open("leader.log","a") as outf:
+                outf.write("in process")
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
@@ -158,8 +160,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "fedlearner.model.tree.trainer",
                     "leader",
                     "--verbosity=1",
-                    f"--local-addr={server_ip}:50051",
-                    f"--peer-addr={server_ip}:50052",
+                    f"--local-addr={server_ip}:39051",
+                    f"--peer-addr={server_ip}:39052",
                     "--file-type=tfrecord",
                     "--data-path=data/leader/leader_train.tfrecord",
                     "--validation-data-path=data/leader/leader_test.tfrecord",
@@ -175,6 +177,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 stdout=subprocess.PIPE, 
                 stderr=subprocess.PIPE
             )
+            with open("leader.log","a") as outf:
+                outf.write("out process")
         elif role == 'treefollower':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
@@ -186,8 +190,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "fedlearner.model.tree.trainer",
                     "follower",
                     "--verbosity=1",
-                    f"--local-addr={server_ip}:50052",
-                    f"--peer-addr={server_ip}:50051",
+                    f"--local-addr={server_ip}:39052",
+                    f"--peer-addr={server_ip}:39051",
                     "--file-type=tfrecord",
                     "--data-path=data/follower/follower_train.tfrecord",
                     "--validation-data-path=data/follower/follower_test.tfrecord",
@@ -323,6 +327,8 @@ def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participan
     with open("config.json", "w") as cf:
         json.dump(fedlearner_config, cf)
     print (fedlearner_config)
+    with open("leader.log","w") as outf:
+        outf.write("going to make data\n")
     os.system('python make_data.py config.json train')
     # for certain frameworks, clients need to learn the ip of the server
     # in that case, we get the ip of the current machine and send it to the clients
@@ -330,6 +336,8 @@ def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participan
     cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "treefollower"])
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
+    with open("leader.log","a") as outf:
+        outf.write("server ip: %s\n"%server_ip)
     return run_external_process_and_collect_result(cl, participant_id, "treeleader", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
 
 @pop.handle("unifed.fedlearner:treefollower")
