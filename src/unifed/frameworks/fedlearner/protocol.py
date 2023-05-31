@@ -151,7 +151,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
             with open("leader.log","a") as outf:
-                outf.write("in process")
+                outf.write("in process\n")
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
@@ -178,7 +178,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 stderr=subprocess.PIPE
             )
             with open("leader.log","a") as outf:
-                outf.write("out process")
+                outf.write("out process\n")
         elif role == 'treefollower':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
@@ -212,6 +212,18 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         # gather result
         stdout, stderr = process.communicate()
         returncode = process.returncode
+        with open("leader.log","a") as outf:
+            outf.write("=================\n=================\n=================\n")
+            outf.write(stdout)
+        with open("leader.log","a") as outf:
+            outf.write("=================\n=================\n=================\n")
+            outf.write(stdout.decode())
+        with open("leader.log","a") as outf:
+            outf.write("=================\n=================\n=================\n")
+            outf.write(stderr)
+        with open("leader.log","a") as outf:
+            outf.write("=================\n=================\n=================\n")
+            outf.write(stderr.decode())
         #with open(temp_output_filename, "rb") as f:
         #    output = f.read()
         #cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:output", output)
