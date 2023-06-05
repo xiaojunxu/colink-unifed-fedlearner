@@ -363,7 +363,7 @@ def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participan
     server_in_list = [p for p in participants if p.role == "treefollower"]
     assert len(server_in_list) == 1
     p_server = server_in_list[0]
-    server_ip = cl.recv_variable("client_ip", p_server).decode()
+    client_ip = cl.recv_variable("client_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
     with open("leader.log","a") as outf:
@@ -385,13 +385,13 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     with open("follower.log","w") as outf:
         outf.write("going to make data\n")
     os.system('python make_data.py config.json train')
-    with open("leader.log","w") as outf:
+    with open("follower.log","w") as outf:
         outf.write("done\n")
     # get ip of client
     client_ip = get_local_ip()
-    with open("leader.log","a") as outf:
+    with open("follower.log","a") as outf:
         outf.write("client ip: %s\n"%client_ip)
-    cl.send_variable("client_ip", server_ip, [p for p in participants if p.role == "treefollower"])
+    cl.send_variable("client_ip", client_ip, [p for p in participants if p.role == "treefollower"])
     # get the ip of the server
     server_in_list = [p for p in participants if p.role == "treeleader"]
     assert len(server_in_list) == 1
@@ -399,7 +399,7 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     server_ip = cl.recv_variable("server_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
-    with open("leader.log","a") as outf:
+    with open("follower.log","a") as outf:
         outf.write("server ip: %s\n"%server_ip)
         outf.write("participant id: %s\n"%participant_id)
     return run_external_process_and_collect_result(cl, participant_id, "treefollower", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'], client_ip=client_ip)
