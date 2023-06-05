@@ -213,17 +213,6 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
             filtered_err = '\n'.join( [line for line in decoded_err.split('\n') if not line.startswith('WARNING')] )
             stderr = filtered_err.encode()
         returncode = process.returncode
-        with open("tmp.log","w") as outf:
-            outf.write(str(stdout))
-        with open("tmp.log","a") as outf:
-            outf.write("=================\n=================\n=================\n")
-            outf.write(stdout.decode())
-        with open("tmp.log","a") as outf:
-            outf.write("=================\n=================\n=================\n")
-            outf.write(str(stderr))
-        with open("tmp.log","a") as outf:
-            outf.write("=================\n=================\n=================\n")
-            outf.write(stderr.decode())
         #with open(temp_output_filename, "rb") as f:
         #    output = f.read()
         #cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:output", output)
