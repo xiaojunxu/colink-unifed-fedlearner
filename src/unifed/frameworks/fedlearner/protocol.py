@@ -158,8 +158,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "fedlearner.model.tree.trainer",
                     "leader",
                     "--verbosity=1",
-                    f"--local-addr={server_ip}:41151",
-                    f"--peer-addr={client_ip}:41152",
+                    f"--local-addr={server_ip}:41051",
+                    f"--peer-addr={client_ip}:41052",
                     "--file-type=tfrecord",
                     "--data-path=data/leader/leader_train.tfrecord",
                     "--validation-data-path=data/leader/leader_test.tfrecord",
@@ -186,8 +186,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "fedlearner.model.tree.trainer",
                     "follower",
                     "--verbosity=1",
-                    f"--local-addr={client_ip}:41152",
-                    f"--peer-addr={server_ip}:41151",
+                    f"--local-addr={client_ip}:41052",
+                    f"--peer-addr={server_ip}:41051",
                     "--file-type=tfrecord",
                     "--data-path=data/follower/follower_train.tfrecord",
                     "--validation-data-path=data/follower/follower_test.tfrecord",
@@ -206,13 +206,28 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         else:
             raise NotImplementedError()
         # gather result
+        with open("tmp.log","w") as outf:
+            outf.write("gathering\n")
         stdout, stderr = process.communicate()
+        with open("tmp.log","a") as outf:
+            outf.write("gather done\n")
         if role == 'treeleader' or role == 'treefollower':
             # remove warning info from stderr; otherwise too long
             decoded_err = stderr.decode()
             filtered_err = '\n'.join( [line for line in decoded_err.split('\n') if not line.startswith('WARNING')] )
             stderr = filtered_err.encode()
         returncode = process.returncode
+        with open("tmp.log","a") as outf:
+            outf.write(str(stdout))
+        with open("tmp.log","a") as outf:
+            outf.write("=================\n=================\n=================\n")
+            outf.write(stdout.decode())
+        with open("tmp.log","a") as outf:
+            outf.write("=================\n=================\n=================\n")
+            outf.write(str(stderr))
+        with open("tmp.log","a") as outf:
+            outf.write("=================\n=================\n=================\n")
+            outf.write(stderr.decode())
         #with open(temp_output_filename, "rb") as f:
         #    output = f.read()
         #cl.create_entry(f"{UNIFED_TASK_DIR}:{cl.get_task_id()}:output", output)
