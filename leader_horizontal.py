@@ -94,7 +94,7 @@ else:
     for dir_path in ["train", "test"]:
         if dir_path == 'test' and config['dataset'] == 'vehicle_scale_horizontal':
             break
-        for data_path in glob.glob(f'~/flbenchmark.working/csv_data/{config["dataset"]}_{dir_path}/*.csv'):
+        for data_path in glob.glob(os.path.expanduser(f'~/flbenchmark.working/csv_data/{config["dataset"]}_{dir_path}/*.csv')):
             data = pd.read_csv(data_path, sep=',')
             if config['dataset'] == 'femnist':
                 if config['model'] == 'lenet':
