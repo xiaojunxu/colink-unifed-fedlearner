@@ -154,6 +154,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                 [
                     #"python -m fedlearner.model.tree.trainer",
                     "python",
+                    "-W",  # ignore warnings; otherwise too many warning info and cannot be saved.
+                    "ignore",
                     "-m",
                     "fedlearner.model.tree.trainer",
                     "leader",
