@@ -173,7 +173,7 @@ def create_model(num_class, input_len, type):
     if type == 'classification':
         activation = 'softmax'
         loss = tf.keras.losses.SparseCategoricalCrossentropy()
-        metric = tf.keras.metrics.AUC()
+        metric = 'acc'
     elif type == 'regression':
         activation = 'linear'
         loss = tf.keras.losses.MeanSquaredError()
@@ -325,3 +325,4 @@ else:
                           fl_name="leader",
                           fl_cluster=_fl_cluster,
                           steps_per_sync=config['training_param']['steps_per_sync'])
+os.system('python convert_metric.py config.json')

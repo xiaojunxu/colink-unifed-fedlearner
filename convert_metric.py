@@ -37,3 +37,5 @@ for line in lines:
         out.append(line)
 with open('./log/0.log', 'w') as f:
     f.writelines(out)
+import flbenchmark.logging
+flbenchmark.logging.get_report('./log')
