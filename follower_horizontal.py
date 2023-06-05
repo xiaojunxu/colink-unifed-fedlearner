@@ -173,7 +173,7 @@ def create_model(num_class, input_len, type):
     if type == 'classification':
         activation = 'softmax'
         loss = tf.keras.losses.SparseCategoricalCrossentropy()
-        metric = 'acc'
+        metric = 'auc'
     elif type == 'regression':
         activation = 'linear'
         loss = tf.keras.losses.MeanSquaredError()
