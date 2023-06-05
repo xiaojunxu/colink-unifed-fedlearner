@@ -291,14 +291,14 @@ def create_model(num_class, input_len, type):
 _fl_cluster = {
     "leader": {
         "name": "leader",
-        "address": f"{sys.argv[2]}:30050"
+        "address": f"{sys.argv[2]}:30150"
     },
     "followers": []
 }
 for i in range(client_num-1):
     _fl_cluster["followers"].append({
     "name": "follower_"+str(i),
-    "address": f"{sys.argv[2]}:"+str(30051+i)
+    "address": f"{sys.argv[2]}:"+str(30151+i)
 })
 model = create_model(num_class, input_len, type)
 i = int(sys.argv[3])
