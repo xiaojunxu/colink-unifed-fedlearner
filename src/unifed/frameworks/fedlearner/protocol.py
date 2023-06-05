@@ -170,7 +170,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     f"--max-iters={n_epoch}",
                     f"--learning-rate={tree_lr}",
                     f"--max-bins={tree_bins}",
-                    f"--max-depth={tree_depth}"
+                    f"--max-depth={tree_depth}",
+                    "2>&1"
                 ],
                 env=new_env,
                 stdout=subprocess.PIPE, 
@@ -199,7 +200,8 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     f"--max-iters={n_epoch}",
                     f"--learning-rate={tree_lr}",
                     f"--max-bins={tree_bins}",
-                    f"--max-depth={tree_depth}"
+                    f"--max-depth={tree_depth}",
+                    "2>&1"
                 ],
                 env=new_env,
                 stdout=subprocess.PIPE, 
