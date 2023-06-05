@@ -22,7 +22,7 @@ def load_config_from_param_and_check(param: bytes):
         raise ValueError("Deployment mode must be colink")
     return unifed_config
 
-def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role: str, n_epoch: int, server_ip: str, tree_lr:float=0.0, tree_bins:int=0, tree_depth:int=0):
+def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role: str, n_epoch: int, server_ip: str, tree_lr:float=0.0, tree_bins:int=0, tree_depth:int=0, client_ip:str=''):
     with GetTempFileName() as temp_log_filename, \
         GetTempFileName() as temp_output_filename:
         # note that here, you don't have to create temp files to receive output and log
@@ -161,7 +161,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "leader",
                     "--verbosity=1",
                     f"--local-addr={server_ip}:38051",
-                    f"--peer-addr={server_ip}:38052",
+                    f"--peer-addr={client_ip}:38052",
                     "--file-type=tfrecord",
                     "--data-path=data/leader/leader_train.tfrecord",
                     "--validation-data-path=data/leader/leader_test.tfrecord",
@@ -192,7 +192,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     "fedlearner.model.tree.trainer",
                     "follower",
                     "--verbosity=1",
-                    f"--local-addr={server_ip}:38052",
+                    f"--local-addr={client_ip}:38052",
                     f"--peer-addr={server_ip}:38051",
                     "--file-type=tfrecord",
                     "--data-path=data/follower/follower_train.tfrecord",
@@ -355,11 +355,17 @@ def run_treeleader(cl: CL.CoLink, param: bytes, participants: List[CL.Participan
     # in that case, we get the ip of the current machine and send it to the clients
     server_ip = get_local_ip()
     cl.send_variable("server_ip", server_ip, [p for p in participants if p.role == "treefollower"])
+    # get the ip of the client
+    server_in_list = [p for p in participants if p.role == "treefollower"]
+    assert len(server_in_list) == 1
+    p_server = server_in_list[0]
+    server_ip = cl.recv_variable("client_ip", p_server).decode()
     # run external program
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
     with open("leader.log","a") as outf:
         outf.write("server ip: %s\n"%server_ip)
-    return run_external_process_and_collect_result(cl, participant_id, "treeleader", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
+        outf.write("client ip: %s\n"%client_ip)
+    return run_external_process_and_collect_result(cl, participant_id, "treeleader", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'], client_ip=client_ip)
 
 @pop.handle("unifed.fedlearner:treefollower")
 @store_error(UNIFED_TASK_DIR)
@@ -376,6 +382,9 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     with open("follower.log","w") as outf:
         outf.write("going to make data\n")
     os.system('python make_data.py config.json train')
+    # get ip of client
+    client_ip = get_local_ip()
+    cl.send_variable("client_ip", server_ip, [p for p in participants if p.role == "treefollower"])
     # get the ip of the server
     server_in_list = [p for p in participants if p.role == "treeleader"]
     assert len(server_in_list) == 1
@@ -385,8 +394,9 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     participant_id = [i for i, p in enumerate(participants) if p.user_id == cl.get_user_id()][0]
     with open("leader.log","a") as outf:
         outf.write("server ip: %s\n"%server_ip)
+        outf.write("client ip: %s\n"%client_ip)
         outf.write("participant id: %s\n"%participant_id)
-    return run_external_process_and_collect_result(cl, participant_id, "treefollower", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'])
+    return run_external_process_and_collect_result(cl, participant_id, "treefollower", unifed_config['training']['epochs'], server_ip, tree_lr=unifed_config['training']['learning_rate'], tree_bins=unifed_config['training']['tree_param']['max_bins'], tree_depth=unifed_config['training']['tree_param']['max_depth'], client_ip=client_ip)
 
 
 @pop.handle("unifed.fedlearner:horizontalleader")
