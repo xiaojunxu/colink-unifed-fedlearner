@@ -150,7 +150,6 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         elif role == 'treeleader':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
-            new_env["PYTHONWARNINGS"] = "ignore"
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
@@ -170,8 +169,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     f"--max-iters={n_epoch}",
                     f"--learning-rate={tree_lr}",
                     f"--max-bins={tree_bins}",
-                    f"--max-depth={tree_depth}",
-                    "2>&1"
+                    f"--max-depth={tree_depth}"
                 ],
                 env=new_env,
                 stdout=subprocess.PIPE, 
@@ -180,7 +178,6 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         elif role == 'treefollower':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
-            new_env["PYTHONWARNINGS"] = "ignore"
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
@@ -200,8 +197,7 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
                     f"--max-iters={n_epoch}",
                     f"--learning-rate={tree_lr}",
                     f"--max-bins={tree_bins}",
-                    f"--max-depth={tree_depth}",
-                    "2>&1"
+                    f"--max-depth={tree_depth}"
                 ],
                 env=new_env,
                 stdout=subprocess.PIPE, 
@@ -211,6 +207,11 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
             raise NotImplementedError()
         # gather result
         stdout, stderr = process.communicate()
+        if role == 'treeleader' or role == 'treefollower':
+            # remove warning info from stderr; otherwise too long
+            decoded_err = stderr.decode()
+            filtered_err = '\n'.join( [line for line in decoded_err.split('\n') if not line.startswith('WARNING')] )
+            stderr = filtered_err.encode()
         returncode = process.returncode
         with open("tmp.log","w") as outf:
             outf.write(str(stdout))
