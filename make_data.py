@@ -34,8 +34,8 @@ if config['dataset'] != 'give_credit_vertical' and sys.argv[2] == 'test':
 flbd = flbenchmark.datasets.FLBDatasets('~/flbenchmark.working/data')
 
 train_dataset, test_dataset = flbd.fateDatasets(config['dataset'])
-train_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_train')
-test_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_test')
+train_data_base = os.path.expanduser('~/flbenchmark.working/csv_data/'+config['dataset']+'_train')
+test_data_base = os.path.expanduser('~/flbenchmark.working/csv_data/'+config['dataset']+'_test')
 flbenchmark.datasets.convert_to_csv(train_dataset, out_dir=train_data_base)
 if test_dataset is not None:
     flbenchmark.datasets.convert_to_csv(test_dataset, out_dir=test_data_base)

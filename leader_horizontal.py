@@ -27,9 +27,9 @@ elif config['dataset'] == 'femnist':
     train_dataset, test_dataset = flbd.leafDatasets(config['dataset'])
 else:
     train_dataset, test_dataset = flbd.fateDatasets(config['dataset'])
-train_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_train')
-test_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_test')
-val_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_val')
+train_data_base = os.path.expanduser('~/flbenchmark.working/csv_data/'+config['dataset']+'_train')
+test_data_base = os.path.expanduser('~/flbenchmark.working/csv_data/'+config['dataset']+'_test')
+val_data_base = os.path.expanduser('~/flbenchmark.working/csv_data/'+config['dataset']+'_val')
 flbenchmark.datasets.convert_to_csv(train_dataset, out_dir=train_data_base)
 if test_dataset is not None:
     flbenchmark.datasets.convert_to_csv(test_dataset, out_dir=test_data_base)
