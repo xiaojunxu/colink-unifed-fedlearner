@@ -150,12 +150,11 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         elif role == 'treeleader':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
+            new_env["PYTHONWARNINGS"] = "ignore"
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
                     "python",
-                    "-W",  # ignore warnings; otherwise too many warning info and cannot be saved.
-                    "ignore",
                     "-m",
                     "fedlearner.model.tree.trainer",
                     "leader",
@@ -180,12 +179,11 @@ def run_external_process_and_collect_result(cl: CL.CoLink, participant_id,  role
         elif role == 'treefollower':
             new_env = os.environ.copy()
             new_env["PYTHONPATH"] = "./fedlearner:"+new_env.get("PYTHONPATH","")
+            new_env["PYTHONWARNINGS"] = "ignore"
             process = subprocess.Popen(
                 [
                     #"python -m fedlearner.model.tree.trainer",
                     "python",
-                    "-W",  # ignore warnings; otherwise too many warning info and cannot be saved.
-                    "ignore",
                     "-m",
                     "fedlearner.model.tree.trainer",
                     "follower",
