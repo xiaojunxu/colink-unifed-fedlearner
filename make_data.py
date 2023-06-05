@@ -31,11 +31,11 @@ config = json.load(open(sys.argv[1], 'r'))
 if config['dataset'] != 'give_credit_vertical' and sys.argv[2] == 'test':
     sys.exit()
 
-flbd = flbenchmark.datasets.FLBDatasets('../data')
+flbd = flbenchmark.datasets.FLBDatasets('~/flbenchmark.working/data')
 
 train_dataset, test_dataset = flbd.fateDatasets(config['dataset'])
-train_data_base = os.path.abspath('../csv_data/'+config['dataset']+'_train')
-test_data_base = os.path.abspath('../csv_data/'+config['dataset']+'_test')
+train_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_train')
+test_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_test')
 flbenchmark.datasets.convert_to_csv(train_dataset, out_dir=train_data_base)
 if test_dataset is not None:
     flbenchmark.datasets.convert_to_csv(test_dataset, out_dir=test_data_base)
@@ -46,46 +46,46 @@ os.makedirs(os.path.join(current_dir, 'data/leader'))
 os.makedirs(os.path.join(current_dir, 'data/follower'))
 
 if config['dataset'] == 'breast_vertical':
-    data_l = pd.read_csv('../csv_data/breast_vertical_train/breast_hetero_guest.csv', sep=',')
+    data_l = pd.read_csv('~/flbenchmark.working/csv_data/breast_vertical_train/breast_hetero_guest.csv', sep=',')
     xl = np.array(data_l.iloc[:, 2:]).astype(np.float32)
     y = np.array(data_l.y).astype(np.int64)
-    data_f = pd.read_csv('../csv_data/breast_vertical_train/breast_hetero_host.csv', sep=',')
+    data_f = pd.read_csv('~/flbenchmark.working/csv_data/breast_vertical_train/breast_hetero_host.csv', sep=',')
     xf = np.array(data_f.iloc[:, 1:]).astype(np.float32)
 elif config['dataset'] == 'default_credit_vertical':
-    data_l = pd.read_csv('../csv_data/default_credit_vertical_train/default_credit_hetero_guest.csv', sep=',')
+    data_l = pd.read_csv('~/flbenchmark.working/csv_data/default_credit_vertical_train/default_credit_hetero_guest.csv', sep=',')
     xl = np.array(data_l.iloc[:, 2:]).astype(np.float32)
     y = np.array(data_l.y).astype(np.int64)
-    data_f = pd.read_csv('../csv_data/default_credit_vertical_train/default_credit_hetero_host.csv', sep=',')
+    data_f = pd.read_csv('~/flbenchmark.working/csv_data/default_credit_vertical_train/default_credit_hetero_host.csv', sep=',')
     xf = np.array(data_f.iloc[:, 1:]).astype(np.float32)
 elif config['dataset'] == 'dvisit_vertical':
-    data_l = pd.read_csv('../csv_data/dvisit_vertical_train/dvisit_hetero_guest.csv', sep=',')
+    data_l = pd.read_csv('~/flbenchmark.working/csv_data/dvisit_vertical_train/dvisit_hetero_guest.csv', sep=',')
     xl = np.array(data_l.iloc[:, 2:]).astype(np.float32)
     y = np.array(data_l.y).astype(np.float32)
-    data_f = pd.read_csv('../csv_data/dvisit_vertical_train/dvisit_hetero_host.csv', sep=',')
+    data_f = pd.read_csv('~/flbenchmark.working/csv_data/dvisit_vertical_train/dvisit_hetero_host.csv', sep=',')
     xf = np.array(data_f.iloc[:, 1:]).astype(np.float32)
 elif config['dataset'] == 'give_credit_vertical':
-    data_l = pd.read_csv(f'../csv_data/give_credit_vertical_{sys.argv[2]}/give_credit_hetero_guest.csv', sep=',')
+    data_l = pd.read_csv(f'~/flbenchmark.working/csv_data/give_credit_vertical_{sys.argv[2]}/give_credit_hetero_guest.csv', sep=',')
     xl = np.array(data_l.iloc[:, 2:]).astype(np.float32)
     y = np.array(data_l.y).astype(np.int64)
-    data_f = pd.read_csv(f'../csv_data/give_credit_vertical_{sys.argv[2]}/give_credit_hetero_host.csv', sep=',')
+    data_f = pd.read_csv(f'~/flbenchmark.working/csv_data/give_credit_vertical_{sys.argv[2]}/give_credit_hetero_host.csv', sep=',')
     xf = np.array(data_f.iloc[:120000, 1:]).astype(np.float32)
 elif config['dataset'] == 'motor_vertical':
-    data_l = pd.read_csv('../csv_data/motor_vertical_train/motor_hetero_guest.csv', sep=',')
+    data_l = pd.read_csv('~/flbenchmark.working/csv_data/motor_vertical_train/motor_hetero_guest.csv', sep=',')
     xl = np.array(data_l.iloc[:, 2:]).astype(np.float32)
     y = np.array(data_l.y).astype(np.float32)
-    data_f = pd.read_csv('../csv_data/motor_vertical_train/motor_hetero_host.csv', sep=',')
+    data_f = pd.read_csv('~/flbenchmark.working/csv_data/motor_vertical_train/motor_hetero_host.csv', sep=',')
     xf = np.array(data_f.iloc[:, 1:]).astype(np.float32)
 elif config['dataset'] == 'student_vertical':
-    data_l = pd.read_csv('../csv_data/student_vertical_train/student_hetero_guest.csv', sep=',')
+    data_l = pd.read_csv('~/flbenchmark.working/csv_data/student_vertical_train/student_hetero_guest.csv', sep=',')
     xl = np.array(data_l.iloc[:, 2:]).astype(np.float32)
     y = np.array(data_l.y).astype(np.float32)
-    data_f = pd.read_csv('../csv_data/student_vertical_train/student_hetero_host.csv', sep=',')
+    data_f = pd.read_csv('~/flbenchmark.working/csv_data/student_vertical_train/student_hetero_host.csv', sep=',')
     xf = np.array(data_f.iloc[:, 1:]).astype(np.float32)
 elif config['dataset'] == 'vehicle_scale_vertical':
-    data_l = pd.read_csv('../csv_data/vehicle_scale_vertical_train/vehicle_scale_hetero_guest.csv', sep=',')
+    data_l = pd.read_csv('~/flbenchmark.working/csv_data/vehicle_scale_vertical_train/vehicle_scale_hetero_guest.csv', sep=',')
     xl = np.array(data_l.iloc[:, 2:]).astype(np.float32)
     y = np.array(data_l.y).astype(np.int64)
-    data_f = pd.read_csv('../csv_data/vehicle_scale_vertical_train/vehicle_scale_hetero_host.csv', sep=',')
+    data_f = pd.read_csv('~/flbenchmark.working/csv_data/vehicle_scale_vertical_train/vehicle_scale_hetero_host.csv', sep=',')
     xf = np.array(data_f.iloc[:, 1:]).astype(np.float32)
 else:
     raise NotImplementedError('Dataset {} is not supported.'.format(config['dataset']))
@@ -141,10 +141,10 @@ if config['model'] == 'gbdt':
         xf, y.reshape(-1, 1),
         'follower')
     if config['dataset'] == 'give_credit_vertical':
-        data_l = pd.read_csv(f'../csv_data/give_credit_vertical_test/give_credit_hetero_guest.csv', sep=',')
+        data_l = pd.read_csv(f'~/flbenchmark.working/csv_data/give_credit_vertical_test/give_credit_hetero_guest.csv', sep=',')
         xlt = np.array(data_l.iloc[:, 2:]).astype(np.float32)
         yt = np.array(data_l.y).astype(np.int64)
-        data_f = pd.read_csv(f'../csv_data/give_credit_vertical_test/give_credit_hetero_host.csv', sep=',')
+        data_f = pd.read_csv(f'~/flbenchmark.working/csv_data/give_credit_vertical_test/give_credit_hetero_host.csv', sep=',')
         xft = np.array(data_f.iloc[:120000, 1:]).astype(np.float32)
         write_data(
             output_type,

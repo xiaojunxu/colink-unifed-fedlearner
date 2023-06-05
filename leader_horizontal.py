@@ -18,7 +18,7 @@ tf.enable_eager_execution()
 
 config = json.load(open(sys.argv[1], 'r'))
 
-flbd = flbenchmark.datasets.FLBDatasets('../data')
+flbd = flbenchmark.datasets.FLBDatasets('~/flbenchmark.working/data')
 
 val_dataset = None
 if config['dataset'] == 'reddit':
@@ -27,9 +27,9 @@ elif config['dataset'] == 'femnist':
     train_dataset, test_dataset = flbd.leafDatasets(config['dataset'])
 else:
     train_dataset, test_dataset = flbd.fateDatasets(config['dataset'])
-train_data_base = os.path.abspath('../csv_data/'+config['dataset']+'_train')
-test_data_base = os.path.abspath('../csv_data/'+config['dataset']+'_test')
-val_data_base = os.path.abspath('../csv_data/'+config['dataset']+'_val')
+train_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_train')
+test_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_test')
+val_data_base = os.path.abspath('~/flbenchmark.working/csv_data/'+config['dataset']+'_val')
 flbenchmark.datasets.convert_to_csv(train_dataset, out_dir=train_data_base)
 if test_dataset is not None:
     flbenchmark.datasets.convert_to_csv(test_dataset, out_dir=test_data_base)
@@ -40,7 +40,7 @@ if config['dataset'] == 'reddit':
     # Dataset Pre-processing
     def load_data(split, use_first_k=None):
         use_first_k = None
-        with open('../csv_data/reddit_%s/_main.json'%split) as inf:
+        with open('~/flbenchmark.working/csv_data/reddit_%s/_main.json'%split) as inf:
             meta_info = json.load(inf)
             parties = meta_info['parties']
         if use_first_k is not None:
@@ -48,7 +48,7 @@ if config['dataset'] == 'reddit':
 
         all_data = {pid: [] for pid in parties}
         for pid in parties:
-            df = pd.read_csv('../csv_data/reddit_%s/%s.csv'%(split, pid))
+            df = pd.read_csv('~/flbenchmark.working/csv_data/reddit_%s/%s.csv'%(split, pid))
             for _, row in df.iterrows():
                 cur_frame = ast.literal_eval(row['x0'])
                 cur_x = [tok for sent in cur_frame for tok in sent if tok != '<PAD>']
@@ -94,7 +94,7 @@ else:
     for dir_path in ["train", "test"]:
         if dir_path == 'test' and config['dataset'] == 'vehicle_scale_horizontal':
             break
-        for data_path in glob.glob(f'../csv_data/{config["dataset"]}_{dir_path}/*.csv'):
+        for data_path in glob.glob(f'~/flbenchmark.working/csv_data/{config["dataset"]}_{dir_path}/*.csv'):
             data = pd.read_csv(data_path, sep=',')
             if config['dataset'] == 'femnist':
                 if config['model'] == 'lenet':
