@@ -391,7 +391,7 @@ def run_treefollower(cl: CL.CoLink, param: bytes, participants: List[CL.Particip
     client_ip = get_local_ip()
     with open("follower.log","a") as outf:
         outf.write("client ip: %s\n"%client_ip)
-    cl.send_variable("client_ip", client_ip, [p for p in participants if p.role == "treefollower"])
+    cl.send_variable("client_ip", client_ip, [p for p in participants if p.role == "treeleader"])
     # get the ip of the server
     server_in_list = [p for p in participants if p.role == "treeleader"]
     assert len(server_in_list) == 1
